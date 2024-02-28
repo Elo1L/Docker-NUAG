@@ -1,0 +1,33 @@
+services:
+  vote:
+    build: ./vote/
+    ports:
+      - "5000:5000"
+    networks:
+      - front-tier
+      - back-tier
+  result:
+    build: ./result/
+    ports:
+      - "4000:4000"
+    networks:
+      - front-tier
+      - back-tier
+    depends_on:
+      - database
+  seed-data:
+    build: ./seed-data/
+    networks:
+      - front-tier
+  worker:
+    build: ./worker/
+  nginx:
+    build: ./nginx/
+    networks:
+      - front-tier
+
+  networks:
+    front-tier:
+      name: front-tier
+    back-tier:
+      name: back-tier
