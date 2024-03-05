@@ -13,8 +13,6 @@ services:
     networks:
       - front-tier
       - back-tier
-    depends_on:
-      - database
   seed-data:
     build: ./seed-data/
     networks:
@@ -25,9 +23,18 @@ services:
     build: ./nginx/
     networks:
       - front-tier
+  scriptpostgre:
+    image: postgres
+    restart: always
+    volumes:
+      - ./postgre.sh:/docker-entrypoint-initdb.d/postgre.sh
+  scriptredis:
+    image: redis
+    volumes:
+      - ./redis.sh:/docker-entrypoint-initdb.d/redis.sh
 
-  networks:
-    front-tier:
-      name: front-tier
-    back-tier:
-      name: back-tier
+networks:
+  front-tier:
+    name: front-tier
+  back-tier:
+    name: back-tier
