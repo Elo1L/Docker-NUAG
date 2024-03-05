@@ -13,28 +13,43 @@ services:
     networks:
       - front-tier
       - back-tier
+    depends_on:
+      - db
   seed-data:
     build: ./seed-data/
     networks:
       - front-tier
   worker:
     build: ./worker/
-  nginx:
-    build: ./nginx/
     networks:
-      - front-tier
-  scriptpostgre:
-    image: postgres
-    restart: always
+      - back-tier
+    depends_on:
+      - db
+  db:
+    image: "postgres:alpine"
     volumes:
-      - ./postgre.sh:/docker-entrypoint-initdb.d/postgre.sh
-  scriptredis:
-    image: redis
-    volumes:
-      - ./redis.sh:/docker-entrypoint-initdb.d/redis.sh
+      - postgres-db-data:/var/lib/postgresql/data
+      - ./healthchecks:/healthchecks
+    environment:
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - back-tier
+    healthcheck:
+      test: ["CMD", "/healthchecks/postgres.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # nginx:
+  #   build: ./nginx/
+  #   networks:
+  #     - front-tier
 
 networks:
   front-tier:
     name: front-tier
   back-tier:
     name: back-tier
+
+volumes:
+  postgresqldata:
+  postgres-db-data:

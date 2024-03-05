@@ -1,0 +1,2 @@
+docker build . -t dockerpostgres
+docker run -p 5432:5432 -v postgresqldata:/var/lib/postgresql/data dockerpostgres
